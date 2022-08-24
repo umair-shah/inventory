@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UnitTestExample.Web.Models
+﻿namespace UnitTestExample.Web.Models
 {
     public partial class Product
     {

@@ -39,7 +39,6 @@ namespace UnitTestExample.Web.Repositories
         public void Update(TEntity entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            //_dbSet.Update(entity);
             _dbContext.SaveChanges();
         }
     }
