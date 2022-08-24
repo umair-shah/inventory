@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using UnitTestExample.Web.Models;
+using UnitTestExample.Web.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddDbContext<UnitTestExampleDbContext>(options =>
 {
