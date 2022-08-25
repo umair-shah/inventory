@@ -6,16 +6,16 @@ namespace UnitTestExample.Web.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly IRepository<Product> _repository;
+        private readonly IRepository<Product> _productRepository;
 
-        public ProductsController(IRepository<Product> repository)
+        public ProductsController(IRepository<Product> productRepository)
         {
-            this._repository = repository;
+            this._productRepository = productRepository;
         }
 
         public async Task<IActionResult> Index()
         {
-            var products = await _repository.GetAllAsync();
+            var products = await _productRepository.GetAllAsync();
             return View(products);
         }
 
@@ -23,10 +23,10 @@ namespace UnitTestExample.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index");
             }
 
-            var product = await _repository.GetByIdAsync((int)id);
+            var product = await _productRepository.GetByIdAsync((int)id);
             if (product == null)
             {
                 return NotFound();
@@ -46,7 +46,7 @@ namespace UnitTestExample.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _repository.CreateAsync(product);
+                await _productRepository.CreateAsync(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -59,7 +59,7 @@ namespace UnitTestExample.Web.Controllers
                 return NotFound();
             }
 
-            var product = await _repository.GetByIdAsync((int)id);
+            var product = await _productRepository.GetByIdAsync((int)id);
             if (product == null)
             {
                 return NotFound();
@@ -78,7 +78,7 @@ namespace UnitTestExample.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                _repository.Update(product);
+                _productRepository.Update(product);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -92,7 +92,7 @@ namespace UnitTestExample.Web.Controllers
                 return NotFound();
             }
 
-            var product = await _repository.GetByIdAsync((int)id);
+            var product = await _productRepository.GetByIdAsync((int)id);
             if (product == null)
             {
                 return NotFound();
@@ -105,14 +105,14 @@ namespace UnitTestExample.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _repository.GetByIdAsync((int)id);
-            _repository.Delete(product);
+            var product = await _productRepository.GetByIdAsync((int)id);
+            _productRepository.Delete(product);
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProductExists(int id)
         {
-            var product = _repository.GetByIdAsync(id).Result;
+            var product = _productRepository.GetByIdAsync(id).Result;
             if (product == null)
                 return false;
             else
