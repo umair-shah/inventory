@@ -96,9 +96,72 @@ namespace UnitTestExample.Test
 
             Assert.Equal(product.Id, resultProduct.Id);
             Assert.Equal(product.Name, resultProduct.Name);
-        } 
+        }
         #endregion
 
+        #region Create_ActionExecutes_ReturnView
+        [Fact]
+        public void Create_ActionExecutes_ReturnView()
+        {
+            var result = _productsController.Create();
 
+            Assert.IsType<ViewResult>(result);
+        }
+        #endregion
+
+        #region CreatePost_InValidModelState_ReturnView
+        [Fact]
+        public async void CreatePost_InValidModelState_ReturnView()
+        {
+            _productsController.ModelState.AddModelError("Name", "The Name field is required.");
+
+            var result = await _productsController.Create(products.First());
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+
+            Assert.IsType<Product>(viewResult.Model);
+        }
+        #endregion
+
+        #region CreatePost_ValidModelSate_ReturnRedirectToIndexAction
+        [Fact]
+        public async void CreatePost_ValidModelSate_ReturnRedirectToIndexAction()
+        {
+            var result = await _productsController.Create(products.First());
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+
+            Assert.Equal("Index", redirect.ActionName);
+        }
+        #endregion
+
+        #region CreatePost_ValidModelState_CreateMethodExecute
+        [Fact]
+        public async void CreatePost_ValidModelState_CreateMethodExecute()
+        {
+            Product newProduct = null;
+
+            _mockProductRepository.Setup(repo => repo.CreateAsync(It.IsAny<Product>()))
+                                  .Callback<Product>(x => newProduct = x);
+
+            var result = await _productsController.Create(products.First());
+
+            _mockProductRepository.Verify(repo => repo.CreateAsync(It.IsAny<Product>()), Times.Once);
+
+            Assert.Equal(products.First().Id, newProduct.Id);
+        }
+        #endregion
+
+        #region CreatePost_InValidModelState_NeverCreateExecute
+        [Fact]
+        public async void CreatePost_InValidModelState_NeverCreateExecute()
+        {
+            _productsController.ModelState.AddModelError("Name", "");
+
+            var result = await _productsController.Create(products.First());
+
+            _mockProductRepository.Verify(repo => repo.CreateAsync(It.IsAny<Product>()), Times.Never);
+        }
+        #endregion
     }
 }
