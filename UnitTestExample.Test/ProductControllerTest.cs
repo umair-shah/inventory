@@ -277,10 +277,10 @@ namespace UnitTestExample.Test
         }
         #endregion
 
-        #region Delete_IdISNotEqualProduct_ReturnNotFound
+        #region Delete_IdIsNotEqualProduct_ReturnNotFound
         [Theory]
         [InlineData(0)]
-        public async void Delete_IdISNotEqualProduct_ReturnNotFound(int productId)
+        public async void Delete_IdIsNotEqualProduct_ReturnNotFound(int productId)
         {
             Product product = null;
             _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -333,8 +333,32 @@ namespace UnitTestExample.Test
         }
         #endregion
 
-        #region MyRegion
+        #region ProductExists_IdIsNotEqualProduct_ReturnFalse
+        [Theory]
+        [InlineData(0)]
+        public void ProductExists_IdIsNotEqualProduct_ReturnFalse(int productId)
+        {
+            Product product = null;
+            _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
 
+            var result = _productsController.ProductExists(productId);
+
+            Assert.False(result);
+        }
+        #endregion
+
+        #region ProductExists_IdIsEqualProduct_ReturnTrue
+        [Theory]
+        [InlineData(1)]
+        public void ProductExists_IdIsEqualProduct_ReturnTrue(int productId)
+        {
+            var product = products.First(x => x.Id == productId);
+            _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
+
+            var result = _productsController.ProductExists(productId);
+
+            Assert.True(result);
+        } 
         #endregion
     }
 }

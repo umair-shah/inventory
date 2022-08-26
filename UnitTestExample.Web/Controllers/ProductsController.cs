@@ -123,7 +123,7 @@ namespace UnitTestExample.Web.Controllers
         #endregion
 
         #region ProductExists
-        private bool ProductExists(int id)
+        public bool ProductExists(int id)
         {
             var product = _productRepository.GetByIdAsync(id).Result;
             if (product == null)
