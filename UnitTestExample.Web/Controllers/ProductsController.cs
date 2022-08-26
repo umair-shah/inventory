@@ -6,19 +6,24 @@ namespace UnitTestExample.Web.Controllers
 {
     public class ProductsController : Controller
     {
+        #region Ctor
         private readonly IRepository<Product> _productRepository;
 
         public ProductsController(IRepository<Product> productRepository)
         {
             this._productRepository = productRepository;
         }
+        #endregion
 
+        #region Index
         public async Task<IActionResult> Index()
         {
             var products = await _productRepository.GetAllAsync();
             return View(products);
         }
+        #endregion
 
+        #region Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +39,9 @@ namespace UnitTestExample.Web.Controllers
 
             return View(product);
         }
+        #endregion
 
+        #region Create
         public IActionResult Create()
         {
             return View();
@@ -51,12 +58,14 @@ namespace UnitTestExample.Web.Controllers
             }
             return View(product);
         }
+        #endregion
 
+        #region Edit
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index");
             }
 
             var product = await _productRepository.GetByIdAsync((int)id);
@@ -84,7 +93,9 @@ namespace UnitTestExample.Web.Controllers
             }
             return View(product);
         }
+        #endregion
 
+        #region Delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -109,7 +120,9 @@ namespace UnitTestExample.Web.Controllers
             _productRepository.Delete(product);
             return RedirectToAction(nameof(Index));
         }
+        #endregion
 
+        #region ProductExists
         private bool ProductExists(int id)
         {
             var product = _productRepository.GetByIdAsync(id).Result;
@@ -117,6 +130,7 @@ namespace UnitTestExample.Web.Controllers
                 return false;
             else
                 return true;
-        }
+        } 
+        #endregion
     }
 }

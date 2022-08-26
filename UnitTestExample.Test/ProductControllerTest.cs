@@ -20,7 +20,7 @@ namespace UnitTestExample.Test
             products = new List<Product>()
             {
                 new Product{Id =1, Name="Pencil", Price=100, Stock=50, Color="Red"},
-                new Product{Id =1, Name="Notebook", Price=200, Stock=500, Color="Blue"}
+                new Product{Id =2, Name="Notebook", Price=200, Stock=500, Color="Blue"}
             };
         }
         #endregion
@@ -73,9 +73,9 @@ namespace UnitTestExample.Test
 
             var result = await _productsController.Details(0);
 
-            var redirect = Assert.IsType<NotFoundResult>(result);
+            var notFound = Assert.IsType<NotFoundResult>(result);
 
-            Assert.Equal<int>(404, redirect.StatusCode);
+            Assert.Equal<int>(404, notFound.StatusCode);
         }
         #endregion
 
@@ -161,6 +161,109 @@ namespace UnitTestExample.Test
             var result = await _productsController.Create(products.First());
 
             _mockProductRepository.Verify(repo => repo.CreateAsync(It.IsAny<Product>()), Times.Never);
+        }
+        #endregion
+
+        #region Edit_IdIsNull_RedirectToIndexAction
+        [Fact]
+        public async void Edit_IdIsNull_RedirectToIndexAction()
+        {
+            var result = await _productsController.Edit(null);
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+
+            Assert.Equal("Index", redirect.ActionName);
+        }
+        #endregion
+
+        #region Edit_IdInValid_ReturnNotFound
+        [Theory]
+        [InlineData(3)]
+        public async void Edit_IdInValid_ReturnNotFound(int productId)
+        {
+            Product product = null;
+
+            _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
+
+            var result = await _productsController.Edit(productId);
+
+            var notFound = Assert.IsType<NotFoundResult>(result);
+
+            Assert.Equal<int>(404, notFound.StatusCode);
+        }
+        #endregion
+
+        #region Edit_ActionExecutes_ReturnProduct
+        [Theory]
+        [InlineData(2)]
+        public async void Edit_ActionExecutes_ReturnProduct(int productId)
+        {
+            var product = products.First(x => x.Id == productId);
+
+            _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
+
+            var result = await _productsController.Edit(productId);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+
+            var resultProduct = Assert.IsAssignableFrom<Product>(viewResult.Model);
+
+            Assert.Equal(product.Id, resultProduct.Id);
+            Assert.Equal(product.Name, resultProduct.Name);
+        }
+        #endregion
+
+        #region EditPost_IdIsNotEqualProduct_ReturnNotFound
+        [Theory]
+        [InlineData(2)]
+        public void EditPost_IdIsNotEqualProduct_ReturnNotFound(int productId)
+        {
+            var result = _productsController.Edit(1, products.First(x => x.Id == productId));
+
+            Assert.IsType<NotFoundResult>(result);
+        }
+        #endregion
+
+        #region EditPost_InValidModelState_ReturnView
+        [Theory]
+        [InlineData(2)]
+        public void EditPost_InValidModelState_ReturnView(int productId)
+        {
+            _productsController.ModelState.AddModelError("Name", "");
+
+            var result = _productsController.Edit(productId, products.First(x => x.Id == productId));
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+
+            Assert.IsType<Product>(viewResult.Model);
+        }
+        #endregion
+
+        #region EditPost_ValidModelState_ReturnRedirectToIndexAction
+        [Theory]
+        [InlineData(1)]
+        public void EditPost_ValidModelState_ReturnRedirectToIndexAction(int productId)
+        {
+            var result = _productsController.Edit(productId, products.First(x => x.Id == productId));
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+
+            Assert.Equal("Index", redirect.ActionName);
+        }
+        #endregion
+
+        #region EditPost_ValidModelState_UpdateMethodExecute
+        [Theory]
+        [InlineData(1)]
+        public void EditPost_ValidModelState_UpdateMethodExecute(int productId)
+        {
+            var product = products.First(x => x.Id == productId);
+
+            _mockProductRepository.Setup(repo => repo.Update(product));
+
+            _productsController.Edit(productId,product);
+
+            _mockProductRepository.Verify(repo => repo.Update(It.IsAny<Product>()), Times.Once);
         }
         #endregion
     }
