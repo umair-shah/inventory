@@ -261,10 +261,80 @@ namespace UnitTestExample.Test
 
             _mockProductRepository.Setup(repo => repo.Update(product));
 
-            _productsController.Edit(productId,product);
+            _productsController.Edit(productId, product);
 
             _mockProductRepository.Verify(repo => repo.Update(It.IsAny<Product>()), Times.Once);
         }
+        #endregion
+
+        #region Delete_IdIsNull_ReturnNotFound
+        [Fact]
+        public async void Delete_IdIsNull_ReturnNotFound()
+        {
+            var result = await _productsController.Delete(null);
+
+            Assert.IsType<NotFoundResult>(result);
+        }
+        #endregion
+
+        #region Delete_IdISNotEqualProduct_ReturnNotFound
+        [Theory]
+        [InlineData(0)]
+        public async void Delete_IdISNotEqualProduct_ReturnNotFound(int productId)
+        {
+            Product product = null;
+            _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
+
+            var result = await _productsController.Delete(productId);
+
+            Assert.IsType<NotFoundResult>(result);
+        }
+        #endregion
+
+        #region Delete_ActionExecutes_ReturnProduct
+        [Theory]
+        [InlineData(1)]
+        public async void Delete_ActionExecutes_ReturnProduct(int productId)
+        {
+            var product = products.First(x => x.Id == productId);
+
+            _mockProductRepository.Setup(repo => repo.GetByIdAsync(productId)).ReturnsAsync(product);
+
+            var result = await _productsController.Delete(productId);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+
+            Assert.IsAssignableFrom<Product>(viewResult.Model);
+        }
+        #endregion
+
+        #region DeleteConfirm_ActionExecutes_ReturnRedirectToIndexAction
+        [Theory]
+        [InlineData(1)]
+        public async void DeleteConfirmed_ActionExecutes_ReturnRedirectToIndexAction(int productId)
+        {
+            var result = await _productsController.DeleteConfirmed(productId);
+            Assert.IsType<RedirectToActionResult>(result);
+        }
+        #endregion
+
+        #region DeleteConfirmed_ActionExecutes_DeleteMethodExecute
+        [Theory]
+        [InlineData(1)]
+        public async void DeleteConfirmed_ActionExecutes_DeleteMethodExecute(int productId)
+        {
+            Product product = products.First(x => x.Id == productId);
+
+            _mockProductRepository.Setup(repo => repo.Delete(product));
+
+            await _productsController.DeleteConfirmed(productId);
+
+            _mockProductRepository.Verify(repo => repo.Delete(It.IsAny<Product>()), Times.Once);
+        }
+        #endregion
+
+        #region MyRegion
+
         #endregion
     }
 }
