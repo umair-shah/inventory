@@ -45,6 +45,7 @@ namespace UnitTestExample.Test
 
             var viewResult = Assert.IsType<ViewResult>(result);
 
+            // View result da ".Model" property den product a ulasiyoruz api de ".Value" property uzerinden producta erisiyoruz.
             var productList = Assert.IsAssignableFrom<IEnumerable<Product>>(viewResult.Model);
 
             Assert.Equal<int>(2, productList.Count());
