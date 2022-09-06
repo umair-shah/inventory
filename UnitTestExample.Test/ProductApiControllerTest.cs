@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using UnitTestExample.Web.Controllers;
+using UnitTestExample.Web.Helpers;
 using UnitTestExample.Web.Models;
 using UnitTestExample.Web.Repositories;
 
@@ -11,6 +12,7 @@ namespace UnitTestExample.Test
         #region Ctor
         private readonly Mock<IRepository<Product>> _mockRepo;
         private readonly ProductsApiController _controller;
+        private readonly Helper _helper;
 
         private List<Product> products;
 
@@ -18,6 +20,7 @@ namespace UnitTestExample.Test
         {
             _mockRepo = new Mock<IRepository<Product>>();
             _controller = new ProductsApiController(_mockRepo.Object);
+            _helper = new Helper();
 
             products = new List<Product>()
             {
@@ -158,6 +161,16 @@ namespace UnitTestExample.Test
             _mockRepo.Verify(x => x.Delete(product), Times.Once);
 
             Assert.IsType<NoContentResult>(noContentResult.Result);
+        }
+        #endregion
+
+        #region HelperAdd_IntegerValues_ReturnTotal
+        [Theory]
+        [InlineData(2, 3, 5)]
+        public void HelperAdd_IntegerValues_ReturnTotal(int number1, int number2, int total)
+        {
+            var result = _helper.Add(number1, number2);
+            Assert.Equal(total, result);
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UnitTestExample.Web.Helpers;
 using UnitTestExample.Web.Models;
 using UnitTestExample.Web.Repositories;
 
@@ -89,6 +90,15 @@ namespace UnitTestExample.Web.Controllers
                 return false;
             else
                 return true;
+        }
+        #endregion
+
+        #region HelperAdd
+        [HttpGet("{number1}/{number2}")]
+        public IActionResult HelperAdd(int number1, int number2)
+        {
+            var result = new Helper().Add(number1, number2);
+            return Ok(result);
         }
         #endregion
     }
