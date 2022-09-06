@@ -69,7 +69,7 @@ namespace UnitTestExample.Web.Controllers
 
         #region DeleteProduct
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<ActionResult<Product>> DeleteProduct(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
@@ -89,7 +89,7 @@ namespace UnitTestExample.Web.Controllers
                 return false;
             else
                 return true;
-        } 
+        }
         #endregion
     }
 }
